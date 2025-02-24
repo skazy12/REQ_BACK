@@ -1,0 +1,6 @@
+bin/
+obj/
+.vs/
+Migrations/
+*.db
+appsettings*.json
