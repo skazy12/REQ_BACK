@@ -1,4 +1,5 @@
-﻿using Aplicacion.Interfaces;
+﻿using Aplicacion.DTOs;
+using Aplicacion.Interfaces;
 using Dominio.Entidades;
 using Infraestructura.Persistencia;
 using Microsoft.EntityFrameworkCore;
@@ -34,10 +35,31 @@ namespace Infraestructura.Repositorios
                 .ToListAsync();
         }
 
-        public async Task CrearUsuarioAsync(Usuario usuario) // ✅ Implementación del método faltante
+        public async Task CrearUsuarioAsync(Usuario usuario) 
         {
             _contexto.Usuarios.Add(usuario);
             await _contexto.SaveChangesAsync();
         }
+
+        public async Task<List<UsuarioDetallesDto>> ObtenerUsuariosConCargosYPermisosDesdeSPAsync()
+        {
+            var resultado = await _contexto.Database
+                .SqlQueryRaw<UsuarioDetalles>(
+                    "EXEC ObtenerUsuariosConCargosYPermisos")
+                .ToListAsync();
+
+            var usuarios = resultado
+                .GroupBy(u => new { u.CodAgenda, u.Nombre })
+                .Select(g => new UsuarioDetallesDto
+                {
+                    CodAgenda = g.Key.CodAgenda,
+                    Nombre = g.Key.Nombre,
+                    Cargos = g.Select(x => x.Cargo).Distinct().ToList(),
+                    Permisos = g.Select(x => x.Permiso).Distinct().ToList()
+                }).ToList();
+
+            return usuarios;
+        }
+
     }
 }

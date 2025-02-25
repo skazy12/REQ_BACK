@@ -1,9 +1,6 @@
 ﻿using Aplicacion.DTOs;
 using Aplicacion.Interfaces;
 using Dominio.Entidades;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Aplicacion.Servicios
 {
@@ -58,6 +55,10 @@ namespace Aplicacion.Servicios
             };
 
             await _usuarioRepositorio.CrearUsuarioAsync(usuario);
+        }
+        public async Task<List<UsuarioDetallesDto>> ObtenerUsuariosConCargosYPermisosDesdeSPAsync()
+        {
+            return await _usuarioRepositorio.ObtenerUsuariosConCargosYPermisosDesdeSPAsync();
         }
     }
 }

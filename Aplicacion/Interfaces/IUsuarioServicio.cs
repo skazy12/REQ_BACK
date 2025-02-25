@@ -12,5 +12,7 @@ namespace Aplicacion.Interfaces
         Task<IEnumerable<UsuarioDto>> ObtenerUsuariosActivosAsync();
 
         Task CrearUsuarioAsync(UsuarioDto usuarioDto);
+
+        Task<List<UsuarioDetallesDto>> ObtenerUsuariosConCargosYPermisosDesdeSPAsync();
     }
 }

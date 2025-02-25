@@ -17,6 +17,8 @@ namespace Infraestructura.Persistencia
         public DbSet<CargoPermiso> CargoPermisos { get; set; }
         public DbSet<JerarquiaCargos> JerarquiasCargos { get; set; }
 
+        
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new UsuarioConfiguracion());
