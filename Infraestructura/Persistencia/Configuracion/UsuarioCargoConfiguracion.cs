@@ -30,22 +30,24 @@ namespace Infraestructura.Persistencia.Configuracion
 
             builder.Property(uc => uc.FechaAsignacion)
                    .HasColumnName("fecha_asignacion")
+                   .HasColumnType("datetime")
                    .IsRequired();
 
             builder.Property(uc => uc.FechaRemocion)
-                   .HasColumnName("fecha_remocion");
+                   .HasColumnName("fecha_remocion")
+                   .HasColumnType("datetime");
 
             builder.Property(uc => uc.Activo)
                    .HasColumnName("activo")
-                   .IsRequired();
+                   .HasColumnType("bit");
 
             builder.HasOne(uc => uc.Usuario)
-                   .WithMany(u => u.UsuarioCargos)
+                   .WithMany(u => u.UsuarioCargo)
                    .HasForeignKey(uc => uc.UsuarioCodAgenda)
-                   .OnDelete(DeleteBehavior.Restrict);
+                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(uc => uc.Cargo)
-                   .WithMany(c => c.UsuariosCargos)
+                   .WithMany(c => c.UsuariosCargo)
                    .HasForeignKey(uc => uc.CargoId)
                    .OnDelete(DeleteBehavior.Restrict);
         }

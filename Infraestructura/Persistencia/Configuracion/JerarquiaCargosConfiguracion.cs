@@ -12,36 +12,35 @@ namespace Infraestructura.Persistencia.Configuracion
 
             builder.HasKey(jc => jc.JerarquiaCargosId);
 
-            builder.Property(jc => jc.JerarquiaCargosId).HasColumnName("jerarquia_cargos_id");
+            builder.Property(jc => jc.JerarquiaCargosId)
+                   .HasColumnName("jerarquia_cargos_id");
 
             builder.Property(jc => jc.CargoIdAsignado)
                    .HasColumnName("cargo_id_asignado")
                    .IsRequired();
 
             builder.Property(jc => jc.CargoIdInferior)
-                   .HasColumnName("cargo_id_inferior");
+                   .HasColumnName("cargo_id_inferior")
+                   .IsRequired(false);
 
             builder.Property(jc => jc.FechaAsignacion)
-                   .HasColumnName("fecha_asignacion");
+                   .HasColumnName("fecha_asignacion")
+                   .HasColumnType("datetime")
+                   .IsRequired();
 
             builder.Property(jc => jc.Activo)
                    .HasColumnName("activo")
+                   .HasColumnType("bit")
                    .IsRequired();
 
             builder.Property(jc => jc.ModificadoPor)
                    .HasColumnName("modificado_por")
                    .HasMaxLength(10);
 
-            // Configuración de las claves foráneas SIN CASCADA en ambas relaciones
             builder.HasOne(jc => jc.CargoAsignado)
                    .WithMany()
                    .HasForeignKey(jc => jc.CargoIdAsignado)
-                   .OnDelete(DeleteBehavior.Restrict); // ❌ Evitar CASCADE
-
-            builder.HasOne(jc => jc.CargoInferior)
-                   .WithMany()
-                   .HasForeignKey(jc => jc.CargoIdInferior)
-                   .OnDelete(DeleteBehavior.NoAction); // ❌ No cascada para evitar loops
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

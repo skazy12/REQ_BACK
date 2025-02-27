@@ -3,9 +3,10 @@ namespace Aplicacion.Interfaces
 {
     public interface IPermisoRepositorio
     {
-        Task<IEnumerable<Permiso>> ObtenerPermisosAsync();
-        Task CrearPermisoAsync(Permiso permiso);
-        Task ModificarPermisoAsync(int id, Permiso permiso);
-        Task DesactivarPermisoAsync(int id);
+        Task<IEnumerable<Permiso>> ObtenerTodosAsync();
+        Task<Permiso> ObtenerPorIdAsync(int id);
+        Task AgregarAsync(Permiso permiso);
+        Task ModificarAsync(Permiso permiso);
+        Task DesactivarAsync(int id);
     }
 }

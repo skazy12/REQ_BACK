@@ -1,13 +1,13 @@
-﻿
+﻿using Aplicacion.DTOs;
 
-using Aplicacion.DTOs;
 namespace Aplicacion.Interfaces
 {
     public interface IPermisoServicio
     {
-        Task<IEnumerable<PermisoDto>> ObtenerPermisosAsync();
-        Task CrearPermisoAsync(PermisoDto permisoDto);
-        Task ModificarPermisoAsync(int id, PermisoDto permisoDto);
-        Task DesactivarPermisoAsync(int id);
+        Task<IEnumerable<PermisoDTO>> ObtenerTodosAsync();
+        Task<PermisoDTO> ObtenerPorIdAsync(int id);
+        Task AgregarAsync(PermisoDTO dto);
+        Task ModificarAsync(PermisoDTO dto);
+        Task DesactivarAsync(int id);
     }
 }

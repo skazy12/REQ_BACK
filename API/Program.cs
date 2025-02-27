@@ -1,5 +1,4 @@
-﻿
-using Infraestructura;
+﻿using Infraestructura;
 
 using Microsoft.OpenApi.Models;
 
@@ -25,26 +24,27 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // 🔹 Configurar CORS
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("PermitirTodo", policy =>
-    {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
-    });
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.SetIsOriginAllowed(origin => true)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
 });
-
 var app = builder.Build();
 
 // 🔹 Configurar Middleware
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.UseCors("PermitirTodo");
+app.UseCors(MyAllowSpecificOrigins);  // Habilita CORS antes de cualquier otro middleware
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
+

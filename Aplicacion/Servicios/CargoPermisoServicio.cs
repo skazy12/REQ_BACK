@@ -1,76 +1,37 @@
-﻿using Aplicacion.DTOs;
+﻿// Archivo: Aplicacion/Servicios/CargoPermisoServicio.cs
+using Aplicacion.DTOs;
 using Aplicacion.Interfaces;
 using Dominio.Entidades;
-
 
 namespace Aplicacion.Servicios
 {
     public class CargoPermisoServicio : ICargoPermisoServicio
     {
-        private readonly ICargoPermisoRepositorio _cargoPermisoRepositorio;
+        private readonly ICargoPermisoRepositorio _repositorio;
 
-        public CargoPermisoServicio(ICargoPermisoRepositorio cargoPermisoRepositorio)
+        public CargoPermisoServicio(ICargoPermisoRepositorio repositorio)
         {
-            _cargoPermisoRepositorio = cargoPermisoRepositorio;
+            _repositorio = repositorio;
         }
 
-        public async Task<IEnumerable<CargoPermisoDto>> ObtenerCargoPermisosAsync()
+        public async Task<IEnumerable<PermisoDTO>> ObtenerPermisosActivosPorCargoAsync(int cargoId)
         {
-            var lista = await _cargoPermisoRepositorio.ObtenerCargoPermisosAsync();
-            return lista.Select(cp => new CargoPermisoDto
+            var permisos = await _repositorio.ObtenerPermisosActivosPorCargoAsync(cargoId);
+            return permisos.Select(p => new PermisoDTO
             {
-                CargoPermisoId = cp.CargoPermisoId,
-                CargoId = cp.CargoId,
-                PermisoId = cp.PermisoId,
-                Activo = cp.Activo ?? false,
-                ModificadoPor = cp.ModificadoPor
+                PermisoId = p.PermisoId,
+                Descripcion = p.Descripcion,
+                Activo = p.Activo
             });
         }
 
-        public async Task<CargoPermisoDto> ObtenerCargoPermisoPorIdAsync(int id)
+        public async Task ActualizarPermisosCargoAsync(CargoPermisoDTO dto)
         {
-            var cargoPermiso = await _cargoPermisoRepositorio.ObtenerCargoPermisoPorIdAsync(id);
-            if (cargoPermiso == null) return null;
-
-            return new CargoPermisoDto
+            
+            foreach (var permiso in dto.Permisos)
             {
-                CargoPermisoId = cargoPermiso.CargoPermisoId,
-                CargoId = cargoPermiso.CargoId,
-                PermisoId = cargoPermiso.PermisoId,
-                Activo = cargoPermiso.Activo ?? false,
-                ModificadoPor = cargoPermiso.ModificadoPor
-            };
-        }
-
-        public async Task CrearCargoPermisoAsync(CargoPermisoDto cargoPermisoDto)
-        {
-            var cargoPermiso = new CargoPermiso
-            {
-                CargoId = cargoPermisoDto.CargoId,
-                PermisoId = cargoPermisoDto.PermisoId,
-                Activo = true,
-                ModificadoPor = cargoPermisoDto.ModificadoPor
-            };
-
-            await _cargoPermisoRepositorio.CrearCargoPermisoAsync(cargoPermiso);
-        }
-
-        public async Task ModificarCargoPermisoAsync(int id, CargoPermisoDto cargoPermisoDto)
-        {
-            var cargoPermiso = new CargoPermiso
-            {
-                CargoPermisoId = id,
-                CargoId = cargoPermisoDto.CargoId,
-                PermisoId = cargoPermisoDto.PermisoId,
-                ModificadoPor = cargoPermisoDto.ModificadoPor
-            };
-
-            await _cargoPermisoRepositorio.ModificarCargoPermisoAsync(id, cargoPermiso);
-        }
-
-        public async Task DesactivarCargoPermisoAsync(int id)
-        {
-            await _cargoPermisoRepositorio.DesactivarCargoPermisoAsync(id);
+                await _repositorio.ActualizarPermisoCargoAsync(dto.CargoId, permiso.PermisoId, permiso.Asignado, "admin");
+            }
         }
     }
 }

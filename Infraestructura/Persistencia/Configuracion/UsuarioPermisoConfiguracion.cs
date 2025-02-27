@@ -8,11 +8,12 @@ namespace Infraestructura.Persistencia.Configuracion
     {
         public void Configure(EntityTypeBuilder<UsuarioPermiso> builder)
         {
-            builder.ToTable("usuario_permisos");
+            builder.ToTable("usuario_permiso");
 
             builder.HasKey(up => up.UsuarioPermisoId);
 
-            builder.Property(up => up.UsuarioPermisoId).HasColumnName("usuario_permisos_id");
+            builder.Property(up => up.UsuarioPermisoId)
+                   .HasColumnName("usuario_permisos_id");
 
             builder.Property(up => up.UsuarioCodAgenda)
                    .HasColumnName("usuario_cod_agenda")
@@ -20,8 +21,18 @@ namespace Infraestructura.Persistencia.Configuracion
                    .IsRequired();
 
             builder.Property(up => up.PermisoId)
-                   .HasColumnName("Permisos_id")
+                   .HasColumnName("permiso_id")
                    .IsRequired();
+
+            builder.HasOne(up => up.Usuario)
+                   .WithMany(u => u.UsuarioPermiso)
+                   .HasForeignKey(up => up.UsuarioCodAgenda)
+                   .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(up => up.Permiso)
+                   .WithMany(p => p.UsuarioPermiso)
+                   .HasForeignKey(up => up.PermisoId)
+                   .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

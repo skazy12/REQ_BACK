@@ -1,53 +1,33 @@
-﻿using Aplicacion.DTOs;
+﻿// Archivo: API/Controladores/CargoPermisoControlador.cs
+using Aplicacion.DTOs;
 using Aplicacion.Interfaces;
+using Aplicacion.Servicios;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controladores
 {
+    [Route("api/cargos/permisos")]
     [ApiController]
-    [Route("api/cargo-permisos")]
     public class CargoPermisoControlador : ControllerBase
     {
-        private readonly ICargoPermisoServicio _cargoPermisoServicio;
+        private readonly ICargoPermisoServicio _servicio;
 
-        public CargoPermisoControlador(ICargoPermisoServicio cargoPermisoServicio)
+        public CargoPermisoControlador(ICargoPermisoServicio servicio)
         {
-            _cargoPermisoServicio = cargoPermisoServicio;
+            _servicio = servicio;
         }
 
-        [HttpGet]
-        public async Task<IEnumerable<CargoPermisoDto>> ObtenerTodos()
+        [HttpGet("{cargoId}")]
+        public async Task<IActionResult> ObtenerPermisosActivosPorCargo(int cargoId)
         {
-            return await _cargoPermisoServicio.ObtenerCargoPermisosAsync();
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> ObtenerPorId(int id)
-        {
-            var cargoPermiso = await _cargoPermisoServicio.ObtenerCargoPermisoPorIdAsync(id);
-            if (cargoPermiso == null) return NotFound();
-            return Ok(cargoPermiso);
+            return Ok(await _servicio.ObtenerPermisosActivosPorCargoAsync(cargoId));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Crear([FromBody] CargoPermisoDto dto)
+        public async Task<IActionResult> ActualizarPermisosCargo([FromBody] CargoPermisoDTO dto)
         {
-            await _cargoPermisoServicio.CrearCargoPermisoAsync(dto);
-            return Ok(new { mensaje = "Cargo-Permiso creado exitosamente." });
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Modificar(int id, [FromBody] CargoPermisoDto dto)
-        {
-            await _cargoPermisoServicio.ModificarCargoPermisoAsync(id, dto);
-            return Ok(new { mensaje = "Cargo-Permiso modificado exitosamente." });
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Desactivar(int id)
-        {
-            await _cargoPermisoServicio.DesactivarCargoPermisoAsync(id);
-            return Ok(new { mensaje = "Cargo-Permiso desactivado exitosamente." });
+            await _servicio.ActualizarPermisosCargoAsync(dto);
+            return Ok();
         }
     }
 }

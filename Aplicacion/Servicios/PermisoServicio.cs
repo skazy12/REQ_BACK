@@ -2,56 +2,54 @@
 using Aplicacion.Interfaces;
 using Dominio.Entidades;
 
-
 namespace Aplicacion.Servicios
 {
     public class PermisoServicio : IPermisoServicio
     {
-        private readonly IPermisoRepositorio _permisoRepositorio;
+        private readonly IPermisoRepositorio _repositorio;
 
-        public PermisoServicio(IPermisoRepositorio permisoRepositorio)
+        public PermisoServicio(IPermisoRepositorio repositorio)
         {
-            _permisoRepositorio = permisoRepositorio;
+            _repositorio = repositorio;
         }
 
-        public async Task<IEnumerable<PermisoDto>> ObtenerPermisosAsync()
+        public async Task<IEnumerable<PermisoDTO>> ObtenerTodosAsync()
         {
-            var permisos = await _permisoRepositorio.ObtenerPermisosAsync();
-            return permisos.Select(p => new PermisoDto
-            {
-                PermisoId = p.PermisoId,  // Se incluye el ID
-                Descripcion = p.Descripcion,
-                CreadoPor = p.CreadoPor,  // Se añade para trazabilidad
-                Activo = p.Activo
-            });
+            var permisos = await _repositorio.ObtenerTodosAsync();
+            return permisos.Select(p => new PermisoDTO { PermisoId = p.PermisoId, Descripcion = p.Descripcion, Activo = p.Activo });
         }
-        public async Task CrearPermisoAsync(PermisoDto permisoDto)
+
+        public async Task<PermisoDTO> ObtenerPorIdAsync(int id)
         {
-            var permiso = new Permiso
+            var permiso = await _repositorio.ObtenerPorIdAsync(id);
+
+            if (permiso == null)
+                return null; // 🔹 Retorna null si el permiso no existe
+
+            return new PermisoDTO
             {
-                Descripcion = permisoDto.Descripcion,
-                Activo = permisoDto.Activo,
-                CreadoPor = "ADMIN"
+                PermisoId = permiso.PermisoId,
+                Descripcion = permiso.Descripcion,
+                Activo = permiso.Activo
             };
-
-            await _permisoRepositorio.CrearPermisoAsync(permiso);
         }
 
-        public async Task ModificarPermisoAsync(int id, PermisoDto permisoDto)
-        {
-            var permiso = new Permiso
-            {
-                PermisoId = id,
-                Descripcion = permisoDto.Descripcion,
-                Activo = permisoDto.Activo
-            };
 
-            await _permisoRepositorio.ModificarPermisoAsync(id, permiso);
+        public async Task AgregarAsync(PermisoDTO dto)
+        {
+            var permiso = new Permiso { Descripcion = dto.Descripcion, Activo = true, CreadoPor = "admin" };
+            await _repositorio.AgregarAsync(permiso);
         }
 
-        public async Task DesactivarPermisoAsync(int id)
+        public async Task ModificarAsync(PermisoDTO dto)
         {
-            await _permisoRepositorio.DesactivarPermisoAsync(id);
+            var permiso = new Permiso { PermisoId = (int)dto.PermisoId, Descripcion = dto.Descripcion, Activo = dto.Activo };
+            await _repositorio.ModificarAsync(permiso);
+        }
+
+        public async Task DesactivarAsync(int id)
+        {
+            await _repositorio.DesactivarAsync(id);
         }
     }
 }

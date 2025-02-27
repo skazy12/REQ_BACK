@@ -2,45 +2,72 @@
 using Aplicacion.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace API.Controladores
 {
-    [ApiController]
     [Route("api/permisos")]
+    [ApiController]
     public class PermisoControlador : ControllerBase
     {
-        private readonly IPermisoServicio _permisoServicio;
+        private readonly IPermisoServicio _servicio;
 
-        public PermisoControlador(IPermisoServicio permisoServicio)
+        public PermisoControlador(IPermisoServicio servicio)
         {
-            _permisoServicio = permisoServicio;
+            _servicio = servicio;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<PermisoDto>> ObtenerPermisos()
+        public async Task<IActionResult> ObtenerTodos()
         {
-            return await _permisoServicio.ObtenerPermisosAsync();
+            return Ok(await _servicio.ObtenerTodosAsync());
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObtenerPorId(int id)
+        {
+            var permiso = await _servicio.ObtenerPorIdAsync(id);
+
+            if (permiso == null)
+                return NotFound($"No se encontró un permiso con ID {id}"); //arroja 404
+
+            return Ok(permiso);
+        }
+
 
         [HttpPost]
-        public async Task<IActionResult> CrearPermiso([FromBody] PermisoDto permisoDto)
+        public async Task<IActionResult> Agregar([FromBody] PermisoDTO dto)
         {
-            await _permisoServicio.CrearPermisoAsync(permisoDto);
-            return Ok();
+            // Crear el permiso sin ID (será generado por la BD)
+            var permiso = new PermisoDTO
+            {
+                Descripcion = dto.Descripcion,
+                Activo = true
+            };
+
+            await _servicio.AgregarAsync(permiso);
+
+            // Volver a obtener el permiso para recuperar su ID
+            var permisos = await _servicio.ObtenerTodosAsync();
+            var nuevoPermiso = permisos.LastOrDefault(p => p.Descripcion == dto.Descripcion);
+
+            if (nuevoPermiso == null)
+                return BadRequest("No se pudo recuperar el permiso recién creado.");
+
+            return CreatedAtAction(nameof(ObtenerPorId), new { id = nuevoPermiso.PermisoId }, nuevoPermiso);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> ModificarPermiso(int id, [FromBody] PermisoDto permisoDto)
+
+        [HttpPut]
+        public async Task<IActionResult> Modificar([FromBody] PermisoDTO dto)
         {
-            await _permisoServicio.ModificarPermisoAsync(id, permisoDto);
-            return Ok();
+            await _servicio.ModificarAsync(dto);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DesactivarPermiso(int id)
+        public async Task<IActionResult> Desactivar(int id)
         {
-            await _permisoServicio.DesactivarPermisoAsync(id);
-            return Ok();
+            await _servicio.DesactivarAsync(id);
+            return NoContent();
         }
     }
 }

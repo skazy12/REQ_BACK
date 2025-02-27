@@ -1,13 +1,16 @@
-﻿using Dominio.Entidades;
+﻿// Archivo: Aplicacion/Interfaces/ICargoPermisoRepositorio.cs
+using Dominio.Entidades;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Aplicacion.Interfaces
 {
     public interface ICargoPermisoRepositorio
     {
-        Task<IEnumerable<CargoPermiso>> ObtenerCargoPermisosAsync();
-        Task<CargoPermiso> ObtenerCargoPermisoPorIdAsync(int id);
-        Task CrearCargoPermisoAsync(CargoPermiso cargoPermiso);
-        Task ModificarCargoPermisoAsync(int id, CargoPermiso cargoPermiso);
-        Task DesactivarCargoPermisoAsync(int id);
+     
+        Task<IEnumerable<Permiso>> ObtenerPermisosActivosPorCargoAsync(int cargoId);
+
+        
+        Task ActualizarPermisoCargoAsync(int cargoId, int permisoId, bool asignado, string modificadoPor);
     }
 }

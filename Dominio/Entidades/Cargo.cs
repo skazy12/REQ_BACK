@@ -13,7 +13,7 @@ namespace Dominio.Entidades
         public string CreadoPor { get; set; }
 
         // Relaciones
-        public ICollection<UsuarioCargo> UsuariosCargos { get; set; }
-        public ICollection<CargoPermiso> CargoPermisos { get; set; }
+        public ICollection<UsuarioCargo> UsuariosCargo { get; set; }
+        public ICollection<CargoPermiso> CargoPermiso { get; set; }
     }
 }

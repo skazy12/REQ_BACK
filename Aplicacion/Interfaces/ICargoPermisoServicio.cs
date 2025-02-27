@@ -1,4 +1,5 @@
-﻿using Aplicacion.DTOs;
+﻿// Archivo: Aplicacion/Interfaces/ICargoPermisoServicio.cs
+using Aplicacion.DTOs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,10 +7,10 @@ namespace Aplicacion.Interfaces
 {
     public interface ICargoPermisoServicio
     {
-        Task<IEnumerable<CargoPermisoDto>> ObtenerCargoPermisosAsync();
-        Task<CargoPermisoDto> ObtenerCargoPermisoPorIdAsync(int id);
-        Task CrearCargoPermisoAsync(CargoPermisoDto cargoPermisoDto);
-        Task ModificarCargoPermisoAsync(int id, CargoPermisoDto cargoPermisoDto);
-        Task DesactivarCargoPermisoAsync(int id);
+        
+        Task<IEnumerable<PermisoDTO>> ObtenerPermisosActivosPorCargoAsync(int cargoId);
+
+        
+        Task ActualizarPermisosCargoAsync(CargoPermisoDTO dto);
     }
 }

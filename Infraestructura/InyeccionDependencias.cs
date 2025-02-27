@@ -1,4 +1,6 @@
-﻿using Aplicacion.Interfaces;
+﻿
+using Aplicacion.Interfaces;
+using Aplicacion.Interfaces;
 using Aplicacion.Servicios;
 using Infraestructura.Persistencia;
 using Infraestructura.Repositorios;
@@ -26,22 +28,15 @@ namespace Infraestructura
                 options.UseSqlServer(connectionString));
 
             // 🔹 Registrar Repositorios
-            services.AddScoped<ICargoRepositorio, CargoRepositorio>();
             services.AddScoped<IPermisoRepositorio, PermisoRepositorio>();
-            services.AddScoped<IJerarquiaCargosRepositorio, JerarquiaCargosRepositorio>();
-            services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
-            services.AddScoped<IUsuarioPermisoRepositorio, UsuarioPermisoRepositorio>();
+            services.AddScoped<ICargoRepositorio, CargoRepositorio>();
             services.AddScoped<ICargoPermisoRepositorio, CargoPermisoRepositorio>();
-            services.AddScoped<IUsuarioCargoRepositorio, UsuarioCargoRepositorio>();
+
 
             // 🔹 Registrar Servicios de Aplicación
-            services.AddScoped<ICargoServicio, CargoServicio>();
             services.AddScoped<IPermisoServicio, PermisoServicio>();
-            services.AddScoped<IJerarquiaCargosServicio, JerarquiaCargosServicio>();
-            services.AddScoped<IUsuarioServicio, UsuarioServicio>();
-            services.AddScoped<IUsuarioPermisoServicio, UsuarioPermisoServicio>();
+            services.AddScoped<ICargoServicio, CargoServicio>();
             services.AddScoped<ICargoPermisoServicio, CargoPermisoServicio>();
-            services.AddScoped<IUsuarioCargoServicio, UsuarioCargoServicio>();
 
             return services;
         }

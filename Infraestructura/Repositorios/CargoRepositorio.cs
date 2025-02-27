@@ -2,52 +2,47 @@
 using Dominio.Entidades;
 using Infraestructura.Persistencia;
 using Microsoft.EntityFrameworkCore;
-
-
 namespace Infraestructura.Repositorios
 {
     public class CargoRepositorio : ICargoRepositorio
     {
-        private readonly AplicacionDbContext _contexto;
-
-        public CargoRepositorio(AplicacionDbContext contexto)
+        private readonly AplicacionDbContext _context;
+        public CargoRepositorio(AplicacionDbContext context)
         {
-            _contexto = contexto;
+            _context = context;
         }
 
-        public async Task<IEnumerable<Cargo>> ObtenerCargosAsync()
+        public async Task<IEnumerable<Cargo>> ObtenerTodosAsync()
         {
-            return await _contexto.Cargos.ToListAsync();
+            return await _context.Cargos.FromSqlRaw("EXEC sp_ObtenerCargos").ToListAsync();
         }
 
-        public async Task CrearCargoAsync(Cargo cargo)
+        public async Task<Cargo> ObtenerPorIdAsync(int id)
         {
-            _contexto.Cargos.Add(cargo);
-            await _contexto.SaveChangesAsync();
+            return (await _context.Cargos
+                .FromSqlRaw($"EXEC sp_ObtenerCargoPorId {id}")
+                .ToListAsync())
+                .FirstOrDefault();
         }
 
-        public async Task ModificarCargoAsync(int id, Cargo cargo)
-        {
-            var cargoExistente = await _contexto.Cargos.FindAsync(id);
-            if (cargoExistente != null)
-            {
-                cargoExistente.Nombre = cargo.Nombre;
-                cargoExistente.Descripcion = cargo.Descripcion;
-                cargoExistente.Activo = cargo.Activo;
-                cargoExistente.FechaActualizacion = cargo.FechaActualizacion;
 
-                await _contexto.SaveChangesAsync();
-            }
+
+        public async Task AgregarAsync(Cargo cargo)
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                $"EXEC sp_AgregarCargo '{cargo.Nombre}', '{cargo.Descripcion}', '{cargo.CreadoPor}'"
+            );
         }
 
-        public async Task DesactivarCargoAsync(int id)
+
+        public async Task ModificarAsync(Cargo cargo)
         {
-            var cargo = await _contexto.Cargos.FindAsync(id);
-            if (cargo != null)
-            {
-                cargo.Activo = false;
-                await _contexto.SaveChangesAsync();
-            }
+            await _context.Database.ExecuteSqlRawAsync($"EXEC sp_ModificarCargo {cargo.CargoId}, '{cargo.Nombre}', '{cargo.Descripcion}'");
+        }
+
+        public async Task DesactivarAsync(int id)
+        {
+            await _context.Database.ExecuteSqlRawAsync($"EXEC sp_DesactivarCargo {id}");
         }
     }
 }

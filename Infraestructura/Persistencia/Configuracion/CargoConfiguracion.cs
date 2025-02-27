@@ -39,7 +39,7 @@ namespace Infraestructura.Persistencia.Configuracion
                    .HasMaxLength(10)
                    .IsRequired();
 
-            builder.HasMany(c => c.UsuariosCargos)
+            builder.HasMany(c => c.UsuariosCargo)
                    .WithOne(uc => uc.Cargo)
                    .HasForeignKey(uc => uc.CargoId)
                    .OnDelete(DeleteBehavior.Restrict);

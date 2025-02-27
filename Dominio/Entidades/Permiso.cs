@@ -14,8 +14,8 @@ namespace Dominio.Entidades
         public Boolean Activo { get; set; }
 
         // Relaciones
-        public ICollection<UsuarioPermiso> UsuarioPermisos { get; set; }
-        public ICollection<CargoPermiso> CargoPermisos { get; set; }
+        public ICollection<UsuarioPermiso> UsuarioPermiso { get; set; }
+        public ICollection<CargoPermiso> CargoPermiso { get; set; }
     }
 }
 

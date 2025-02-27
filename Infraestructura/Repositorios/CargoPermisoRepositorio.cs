@@ -1,9 +1,8 @@
-﻿using Aplicacion.Interfaces;
+﻿// Archivo: Infraestructura/Repositorios/CargoPermisoRepositorio.cs
+using Aplicacion.Interfaces;
 using Dominio.Entidades;
 using Infraestructura.Persistencia;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Infraestructura.Repositorios
 {
@@ -16,42 +15,20 @@ namespace Infraestructura.Repositorios
             _context = context;
         }
 
-        public async Task<IEnumerable<CargoPermiso>> ObtenerCargoPermisosAsync()
+        public async Task<IEnumerable<Permiso>> ObtenerPermisosActivosPorCargoAsync(int cargoId)
         {
-            return await _context.CargoPermisos.Where(cp => (bool)cp.Activo).ToListAsync();
+            return await _context.Permisos
+                .FromSqlRaw($"EXEC sp_ObtenerPermisosActivosPorCargo {cargoId}")
+                .ToListAsync();
         }
 
-        public async Task<CargoPermiso> ObtenerCargoPermisoPorIdAsync(int id)
+        public async Task ActualizarPermisoCargoAsync(int cargoId, int permisoId, bool asignado, string modificadoPor)
         {
-            return await _context.CargoPermisos.FindAsync(id);
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_ActualizarPermisosCargo @p0, @p1, @p2, @p3",
+                cargoId, permisoId, asignado, modificadoPor
+            );
         }
 
-        public async Task CrearCargoPermisoAsync(CargoPermiso cargoPermiso)
-        {
-            await _context.CargoPermisos.AddAsync(cargoPermiso);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task ModificarCargoPermisoAsync(int id, CargoPermiso cargoPermiso)
-        {
-            var existente = await _context.CargoPermisos.FindAsync(id);
-            if (existente != null)
-            {
-                existente.CargoId = cargoPermiso.CargoId;
-                existente.PermisoId = cargoPermiso.PermisoId;
-                existente.ModificadoPor = cargoPermiso.ModificadoPor;
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task DesactivarCargoPermisoAsync(int id)
-        {
-            var existente = await _context.CargoPermisos.FindAsync(id);
-            if (existente != null)
-            {
-                existente.Activo = false;
-                await _context.SaveChangesAsync();
-            }
-        }
     }
 }

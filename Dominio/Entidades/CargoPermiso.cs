@@ -12,7 +12,7 @@ namespace Dominio.Entidades
         public int CargoId { get; set; }  // FK
         public int PermisoId { get; set; }  // FK
         public string ModificadoPor { get; set; }
-        public bool? Activo { get; set; }
+        public bool Activo { get; set; }
 
         public Cargo Cargo { get; set; }
         public Permiso Permiso { get; set; }

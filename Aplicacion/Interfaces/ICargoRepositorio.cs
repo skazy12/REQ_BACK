@@ -1,12 +1,14 @@
-﻿using Dominio.Entidades;
+﻿
+using Dominio.Entidades;
 
 namespace Aplicacion.Interfaces
 {
     public interface ICargoRepositorio
     {
-        Task<IEnumerable<Cargo>> ObtenerCargosAsync();
-        Task CrearCargoAsync(Cargo cargo);
-        Task ModificarCargoAsync(int id, Cargo cargo);
-        Task DesactivarCargoAsync(int id);
+        Task<IEnumerable<Cargo>> ObtenerTodosAsync();
+        Task<Cargo> ObtenerPorIdAsync(int id);
+        Task AgregarAsync(Cargo cargo);
+        Task ModificarAsync(Cargo cargo);
+        Task DesactivarAsync(int id);
     }
 }

@@ -23,9 +23,11 @@ namespace Infraestructura.Persistencia.Configuracion
                    .HasColumnName("creado_por")
                    .HasMaxLength(10)
                    .IsRequired();
-            builder.Property(p => p.Activo) // ✅ Asegura que el campo esté en la BD
-                .HasDefaultValue(true) // Opcional: Valor por defecto
-                .IsRequired();
+
+            builder.Property(p => p.Activo)
+                   .HasColumnName("activo")
+                   .HasColumnType("bit")
+                   .IsRequired();
         }
     }
 }

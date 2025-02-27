@@ -2,45 +2,54 @@
 using Aplicacion.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-
 namespace API.Controladores
 {
-    [ApiController]
     [Route("api/cargos")]
+    [ApiController]
     public class CargoControlador : ControllerBase
     {
-        private readonly ICargoServicio _cargoServicio;
+        private readonly ICargoServicio _servicio;
 
-        public CargoControlador(ICargoServicio cargoServicio)
+        public CargoControlador(ICargoServicio servicio)
         {
-            _cargoServicio = cargoServicio;
+            _servicio = servicio;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CargoDto>> ObtenerCargos()
+        public async Task<IActionResult> ObtenerTodos()
         {
-            return await _cargoServicio.ObtenerCargosAsync();
+            return Ok(await _servicio.ObtenerTodosAsync());
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> ObtenerPorId(int id)
+        {
+            var cargo = await _servicio.ObtenerPorIdAsync(id);
+            if (cargo == null)
+                return NotFound($"No se encontró un cargo con ID {id}");
+
+            return Ok(cargo);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CrearCargo([FromBody] CargoDto cargoDto)
+        public async Task<IActionResult> Agregar([FromBody] CargoDTO dto)
         {
-            await _cargoServicio.CrearCargoAsync(cargoDto);
+            await _servicio.AgregarAsync(dto);
             return Ok();
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> ModificarCargo(int id, [FromBody] CargoDto cargoDto)
+        [HttpPut]
+        public async Task<IActionResult> Modificar([FromBody] CargoDTO dto)
         {
-            await _cargoServicio.ModificarCargoAsync(id, cargoDto);
-            return Ok();
+            await _servicio.ModificarAsync(dto);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DesactivarCargo(int id)
+        public async Task<IActionResult> Desactivar(int id)
         {
-            await _cargoServicio.DesactivarCargoAsync(id);
-            return Ok();
+            await _servicio.DesactivarAsync(id);
+            return NoContent();
         }
     }
 }

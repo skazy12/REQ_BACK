@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35707.178 d17.12
+VisualStudioVersion = 17.12.35707.178
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{691BBECC-0262-40DB-981E-08845311E9E5}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infraestructura", "Infraestructura\Infraestructura.csproj", "{124F5067-1E3A-4C8C-9AC4-22027B93CA9F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Compartido", "Compartido\Compartido.csproj", "{1A52767C-ECFD-4ADC-B2A9-E3A062A62B0E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GateWay", "GateWay\GateWay.csproj", "{A95D031C-943A-49E5-9DBF-440032EC0A48}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{1A52767C-ECFD-4ADC-B2A9-E3A062A62B0E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A52767C-ECFD-4ADC-B2A9-E3A062A62B0E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A52767C-ECFD-4ADC-B2A9-E3A062A62B0E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A95D031C-943A-49E5-9DBF-440032EC0A48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A95D031C-943A-49E5-9DBF-440032EC0A48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A95D031C-943A-49E5-9DBF-440032EC0A48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A95D031C-943A-49E5-9DBF-440032EC0A48}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
