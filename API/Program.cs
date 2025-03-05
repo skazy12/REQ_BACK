@@ -1,10 +1,16 @@
-﻿using Infraestructura;
-
+﻿using API.Middleware;
+using Infraestructura;
+using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔹 Pasar configuración desde API a Infraestructura
+// 🔹 Configurar Logging para que se vea en consola
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+// 🔹 Configurar servicios en Infraestructura
 builder.Services.AgregarInfraestructura(builder.Configuration);
 
 // 🔹 Agregar controladores y autorización
@@ -37,14 +43,37 @@ builder.Services.AddCors(options =>
                   .AllowCredentials();
         });
 });
+
+// 🔹 Configurar Logging de peticiones HTTP
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = HttpLoggingFields.All;
+});
+
 var app = builder.Build();
 
-// 🔹 Configurar Middleware
-app.UseCors(MyAllowSpecificOrigins);  // Habilita CORS antes de cualquier otro middleware
-app.UseSwagger();
-app.UseSwaggerUI();
+// 🔹 Middleware de manejo de errores global (DEBE IR ANTES DE CORS)
+app.UseMiddleware<ManejoErroresMiddleware>();
+
+// 🔹 Middleware de logging (para registrar las peticiones HTTP)
+app.UseHttpLogging();
+
+// 🔹 Configurar CORS antes de otros middlewares
+app.UseCors(MyAllowSpecificOrigins);
+
+// 🔹 Configurar Swagger solo en desarrollo
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+// 🔹 Habilitar autenticación y autorización
+app.UseAuthentication();
 app.UseAuthorization();
+
+// 🔹 Mapear controladores de la API
 app.MapControllers();
+
+// 🔹 Iniciar la aplicación
 app.Run();
-
-

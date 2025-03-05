@@ -1,5 +1,4 @@
-﻿
-using Aplicacion.DTOs;
+﻿using Aplicacion.DTOs;
 
 namespace Aplicacion.Interfaces
 {

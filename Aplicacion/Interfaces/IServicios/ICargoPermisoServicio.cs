@@ -7,10 +7,7 @@ namespace Aplicacion.Interfaces
 {
     public interface ICargoPermisoServicio
     {
-        
-        Task<IEnumerable<PermisoDTO>> ObtenerPermisosActivosPorCargoAsync(int cargoId);
-
-        
+        Task<IEnumerable<PermisoDTO>> ObtenerPermisosPorCargoAsync(int cargoId);
         Task ActualizarPermisosCargoAsync(CargoPermisoDTO dto);
     }
 }

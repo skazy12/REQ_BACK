@@ -1,48 +1,74 @@
-﻿using Aplicacion.Interfaces;
-using Dominio.Entidades;
-using Infraestructura.Persistencia;
-using Microsoft.EntityFrameworkCore;
+﻿using Aplicacion.DTOs;
+using Aplicacion.Interfaces;
+using Dapper;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
+
 namespace Infraestructura.Repositorios
 {
-    public class CargoRepositorio : ICargoRepositorio
+    public class CargoRepositorio : DapperRepository, ICargoRepositorio
     {
-        private readonly AplicacionDbContext _context;
-        public CargoRepositorio(AplicacionDbContext context)
+        public CargoRepositorio(IConfiguration configuration) : base(configuration) { }
+
+        public async Task<IEnumerable<CargoDTO>> ObtenerTodosAsync()
         {
-            _context = context;
+            using var connection = Connection;
+            return await connection.QueryAsync<CargoDTO>("sp_ObtenerCargos", commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<Cargo>> ObtenerTodosAsync()
+        public async Task<CargoDTO> ObtenerPorIdAsync(int id)
         {
-            return await _context.Cargos.FromSqlRaw("EXEC sp_ObtenerCargos").ToListAsync();
+            using var connection = Connection;
+            return await connection.QueryFirstOrDefaultAsync<CargoDTO>(
+                "sp_ObtenerCargoPorId",
+                new { Cargoid =id},
+                commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<Cargo> ObtenerPorIdAsync(int id)
+        public async Task<int> AgregarAsync(CargoDTO dto)
         {
-            return (await _context.Cargos
-                .FromSqlRaw($"EXEC sp_ObtenerCargoPorId {id}")
-                .ToListAsync())
-                .FirstOrDefault();
+            using var connection = Connection;
+            return await connection.ExecuteAsync(
+                "sp_AgregarCargo",
+                new
+                {
+                    Nombre = dto.Nombre,
+                    Descripcion = dto.Descripcion,
+                    CreadoPor = dto.CreadoPor
+                },
+                commandType: CommandType.StoredProcedure);
         }
 
 
-
-        public async Task AgregarAsync(Cargo cargo)
+        public async Task<int> ModificarAsync(CargoDTO dto)
         {
-            await _context.Database.ExecuteSqlRawAsync(
-                $"EXEC sp_AgregarCargo '{cargo.Nombre}', '{cargo.Descripcion}', '{cargo.CreadoPor}'"
-            );
+            using var connection = Connection;
+            return await connection.ExecuteAsync(
+                "sp_ModificarCargo",
+                new
+                {
+                    CargoId = dto.CargoId,  
+                    Nombre = dto.Nombre,
+                    Descripcion = dto.Descripcion
+                },
+                commandType: CommandType.StoredProcedure);
         }
 
 
-        public async Task ModificarAsync(Cargo cargo)
-        {
-            await _context.Database.ExecuteSqlRawAsync($"EXEC sp_ModificarCargo {cargo.CargoId}, '{cargo.Nombre}', '{cargo.Descripcion}'");
-        }
 
         public async Task DesactivarAsync(int id)
         {
-            await _context.Database.ExecuteSqlRawAsync($"EXEC sp_DesactivarCargo {id}");
+            using var connection = Connection;
+            await connection.ExecuteAsync("sp_DesactivarCargo", new { CargoId=id }, commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<int?> ObtenerIdPorNombreAsync(string nombre)
+        {
+            using var connection = Connection;
+            var query = "EXEC sp_ObtenerCargoPorNombre @Nombre";
+            return await connection.QueryFirstOrDefaultAsync<int?>(query, new { Nombre = nombre });
         }
     }
 }

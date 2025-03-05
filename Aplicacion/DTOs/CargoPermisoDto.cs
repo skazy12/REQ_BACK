@@ -16,5 +16,6 @@ namespace Aplicacion.DTOs
     {
         public int PermisoId { get; set; }
         public bool Asignado { get; set; } // TRUE si está asignado, FALSE si se debe desasignar
+        public string? ModificadoPor { get; set; } // Se asignará en el servicio
     }
 }

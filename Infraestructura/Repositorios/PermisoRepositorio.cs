@@ -1,47 +1,55 @@
-﻿using Aplicacion.Interfaces;
+﻿using Aplicacion.DTOs;
+using Aplicacion.Interfaces;
+using Dapper;
 using Dominio.Entidades;
-using Infraestructura.Persistencia;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace Infraestructura.Repositorios
 {
-    public class PermisoRepositorio : IPermisoRepositorio
+    public class PermisoRepositorio : DapperRepository, IPermisoRepositorio
     {
-        private readonly AplicacionDbContext _context;
-        public PermisoRepositorio(AplicacionDbContext context)
+        public PermisoRepositorio(IConfiguration configuration) : base(configuration) { }
+
+        public async Task<IEnumerable<PermisoDTO>> ObtenerTodosAsync()
         {
-            _context = context;
+            using var connection = Connection;
+            return await connection.QueryAsync<PermisoDTO>("sp_ObtenerPermisos", commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<Permiso>> ObtenerTodosAsync()
+        public async Task<PermisoDTO> ObtenerPorIdAsync(int id)
         {
-            return await _context.Permisos.FromSqlRaw("EXEC sp_ObtenerPermisos").ToListAsync();
+            using var connection = Connection;
+            return await connection.QueryFirstOrDefaultAsync<PermisoDTO>(
+                "sp_ObtenerPermisoPorId",
+                new { PermisoId= id },
+                commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<Permiso> ObtenerPorIdAsync(int id)
+        public async Task AgregarAsync(PermisoDTO dto)
         {
-            var permisos = await _context.Permisos
-                .FromSqlRaw($"EXEC sp_ObtenerPermisoPorId {id}")
-                .ToListAsync();  // 🔹 Mantenemos la consulta asincrónica
-
-            return permisos.FirstOrDefault(); // 🔹 Ahora podemos usar FirstOrDefault()
+            using var connection = Connection;
+            await connection.ExecuteAsync(
+                "sp_AgregarPermiso",
+                new { dto.Descripcion, dto.CreadoPor },
+                commandType: CommandType.StoredProcedure);
         }
 
-
-
-        public async Task AgregarAsync(Permiso permiso)
+        public async Task ModificarAsync(PermisoDTO dto)
         {
-            await _context.Database.ExecuteSqlRawAsync($"EXEC sp_AgregarPermiso '{permiso.Descripcion}', '{permiso.CreadoPor}'");
-        }
-
-        public async Task ModificarAsync(Permiso permiso)
-        {
-            await _context.Database.ExecuteSqlRawAsync($"EXEC sp_ModificarPermiso {permiso.PermisoId}, '{permiso.Descripcion}'");
+            using var connection = Connection;
+            await connection.ExecuteAsync(
+                "sp_ModificarPermiso",
+                new { PermisoId= dto.PermisoId, Descripcion= dto.Descripcion },
+                commandType: CommandType.StoredProcedure);
         }
 
         public async Task DesactivarAsync(int id)
         {
-            await _context.Database.ExecuteSqlRawAsync($"EXEC sp_DesactivarPermiso {id}");
+            using var connection = Connection;
+            await connection.ExecuteAsync("sp_DesactivarPermiso", new { PermisoId = id }, commandType: CommandType.StoredProcedure);
         }
     }
 }

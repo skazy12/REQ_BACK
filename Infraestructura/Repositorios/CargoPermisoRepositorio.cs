@@ -1,34 +1,36 @@
-﻿// Archivo: Infraestructura/Repositorios/CargoPermisoRepositorio.cs
+﻿using Aplicacion.DTOs;
 using Aplicacion.Interfaces;
-using Dominio.Entidades;
-using Infraestructura.Persistencia;
-using Microsoft.EntityFrameworkCore;
+using Dapper;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
+using System.Data;
+using System.Threading.Tasks;
 
 namespace Infraestructura.Repositorios
 {
-    public class CargoPermisoRepositorio : ICargoPermisoRepositorio
+    public class CargoPermisoRepositorio : DapperRepository, ICargoPermisoRepositorio
     {
-        private readonly AplicacionDbContext _context;
+        public CargoPermisoRepositorio(IConfiguration configuration) : base(configuration) { }
 
-        public CargoPermisoRepositorio(AplicacionDbContext context)
+        public async Task<IEnumerable<PermisoDTO>> ObtenerPermisosPorCargoAsync(int cargoId)
         {
-            _context = context;
+            using var connection = Connection;
+            return await connection.QueryAsync<PermisoDTO>(
+                "sp_ObtenerPermisosPorCargo",
+                new { cargoId },
+                commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<IEnumerable<Permiso>> ObtenerPermisosActivosPorCargoAsync(int cargoId)
+        public async Task ActualizarPermisosCargoAsync(CargoPermisoDTO dto)
         {
-            return await _context.Permisos
-                .FromSqlRaw($"EXEC sp_ObtenerPermisosActivosPorCargo {cargoId}")
-                .ToListAsync();
+            using var connection = Connection;
+            foreach (var permiso in dto.Permisos)
+            {
+                await connection.ExecuteAsync(
+                    "sp_ActualizarPermisosCargo",
+                    new { dto.CargoId, permiso.PermisoId, permiso.Asignado, permiso.ModificadoPor },
+                    commandType: CommandType.StoredProcedure);
+            }
         }
-
-        public async Task ActualizarPermisoCargoAsync(int cargoId, int permisoId, bool asignado, string modificadoPor)
-        {
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC sp_ActualizarPermisosCargo @p0, @p1, @p2, @p3",
-                cargoId, permisoId, asignado, modificadoPor
-            );
-        }
-
     }
 }

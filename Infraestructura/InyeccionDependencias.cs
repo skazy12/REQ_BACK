@@ -1,6 +1,8 @@
 ﻿
 using Aplicacion.Interfaces;
-using Aplicacion.Interfaces;
+using Aplicacion.Interfaces.IRepositorios;
+using Aplicacion.Interfaces.IServicios;
+using Aplicacion.Interfaces.Servicios;
 using Aplicacion.Servicios;
 using Infraestructura.Persistencia;
 using Infraestructura.Repositorios;
@@ -31,12 +33,24 @@ namespace Infraestructura
             services.AddScoped<IPermisoRepositorio, PermisoRepositorio>();
             services.AddScoped<ICargoRepositorio, CargoRepositorio>();
             services.AddScoped<ICargoPermisoRepositorio, CargoPermisoRepositorio>();
+            services.AddScoped<IUsuarioCargoRepositorio, UsuarioCargoRepositorio>();
+            services.AddScoped<IUsuarioPermisoRepositorio, UsuarioPermisoRepositorio>();
 
+            services.AddScoped<IUsuarioRepositorio, UsuarioRepositorio>();
 
             // 🔹 Registrar Servicios de Aplicación
             services.AddScoped<IPermisoServicio, PermisoServicio>();
             services.AddScoped<ICargoServicio, CargoServicio>();
             services.AddScoped<ICargoPermisoServicio, CargoPermisoServicio>();
+            services.AddScoped<IUsuarioCargoServicio, UsuarioCargoServicio>();
+    
+            services.AddScoped<IUsuarioServicio, UsuarioServicio>();
+            services.AddScoped<IUsuarioPermisoServicio, UsuarioPermisoServicio>();
+
+            services.AddScoped<IAuthServicio, AuthServicio>();
+            services.AddHttpClient<IAuthServicio, AuthServicio>();
+            services.AddScoped<ITokenServicio, TokenServicio>();
+
 
             return services;
         }

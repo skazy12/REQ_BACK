@@ -2,7 +2,7 @@
 
 namespace Aplicacion.Interfaces
 {
-    public interface IPermisoServicio
+    public interface IPermisoRepositorio
     {
         Task<IEnumerable<PermisoDTO>> ObtenerTodosAsync();
         Task<PermisoDTO> ObtenerPorIdAsync(int id);

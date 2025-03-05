@@ -1,6 +1,8 @@
 ﻿using Aplicacion.DTOs;
 using Aplicacion.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace API.Controladores
 {
@@ -8,65 +10,68 @@ namespace API.Controladores
     [ApiController]
     public class PermisoControlador : ControllerBase
     {
-        private readonly IPermisoServicio _servicio;
+        private readonly IPermisoServicio _permisoServicio;
 
-        public PermisoControlador(IPermisoServicio servicio)
+        public PermisoControlador(IPermisoServicio permisoServicio)
         {
-            _servicio = servicio;
+            _permisoServicio = permisoServicio;
         }
 
+        /// <summary>
+        /// Obtiene todos los permisos activos.
+        /// </summary>
         [HttpGet]
-        public async Task<IActionResult> ObtenerTodos()
+        public async Task<IActionResult> ObtenerPermisos()
         {
-            return Ok(await _servicio.ObtenerTodosAsync());
+            var permisos = await _permisoServicio.ObtenerTodosAsync();
+            return Ok(permisos);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> ObtenerPorId(int id)
+        /// <summary>
+        /// Obtiene un permiso por su ID.
+        /// </summary>
+        [HttpGet("{permisoId}")]
+        public async Task<IActionResult> ObtenerPermisoPorId(int permisoId)
         {
-            var permiso = await _servicio.ObtenerPorIdAsync(id);
-
+            var permiso = await _permisoServicio.ObtenerPorIdAsync(permisoId);
             if (permiso == null)
-                return NotFound($"No se encontró un permiso con ID {id}"); //arroja 404
+                return NotFound($"No se encontró el permiso con ID {permisoId}.");
 
             return Ok(permiso);
         }
 
-
+        
         [HttpPost]
-        public async Task<IActionResult> Agregar([FromBody] PermisoDTO dto)
+        public async Task<IActionResult> AgregarPermiso([FromBody] PermisoDTO dto)
         {
-            // Crear el permiso sin ID (será generado por la BD)
-            var permiso = new PermisoDTO
-            {
-                Descripcion = dto.Descripcion,
-                Activo = true
-            };
+            if (dto == null || string.IsNullOrEmpty(dto.Descripcion))
+                return BadRequest("La descripción del permiso es obligatoria.");
 
-            await _servicio.AgregarAsync(permiso);
+            dto.CreadoPor = "admin"; // Usuario de prueba hasta implementar autenticación
 
-            // Volver a obtener el permiso para recuperar su ID
-            var permisos = await _servicio.ObtenerTodosAsync();
-            var nuevoPermiso = permisos.LastOrDefault(p => p.Descripcion == dto.Descripcion);
-
-            if (nuevoPermiso == null)
-                return BadRequest("No se pudo recuperar el permiso recién creado.");
-
-            return CreatedAtAction(nameof(ObtenerPorId), new { id = nuevoPermiso.PermisoId }, nuevoPermiso);
+            await _permisoServicio.AgregarAsync(dto);
+            return CreatedAtAction(nameof(ObtenerPermisoPorId), new { permisoId = dto.PermisoId }, dto);
         }
 
-
-        [HttpPut]
-        public async Task<IActionResult> Modificar([FromBody] PermisoDTO dto)
+        
+        [HttpPut("{permisoId}")]
+        public async Task<IActionResult> ModificarPermiso(int permisoId, [FromBody] PermisoDTO dto)
         {
-            await _servicio.ModificarAsync(dto);
+            if (dto == null || string.IsNullOrEmpty(dto.Descripcion))
+                return BadRequest("La descripción del permiso es obligatoria.");
+
+            dto.PermisoId = permisoId;
+            await _permisoServicio.ModificarAsync(dto);
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Desactivar(int id)
+        /// <summary>
+        /// Desactiva un permiso por su ID.
+        /// </summary>
+        [HttpDelete("{permisoId}")]
+        public async Task<IActionResult> DesactivarPermiso(int permisoId)
         {
-            await _servicio.DesactivarAsync(id);
+            await _permisoServicio.DesactivarAsync(permisoId);
             return NoContent();
         }
     }

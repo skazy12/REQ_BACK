@@ -1,7 +1,6 @@
 ﻿// Archivo: API/Controladores/CargoPermisoControlador.cs
 using Aplicacion.DTOs;
 using Aplicacion.Interfaces;
-using Aplicacion.Servicios;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controladores
@@ -18,9 +17,9 @@ namespace API.Controladores
         }
 
         [HttpGet("{cargoId}")]
-        public async Task<IActionResult> ObtenerPermisosActivosPorCargo(int cargoId)
+        public async Task<IActionResult> ObtenerPermisosPorCargo(int cargoId)
         {
-            return Ok(await _servicio.ObtenerPermisosActivosPorCargoAsync(cargoId));
+            return Ok(await _servicio.ObtenerPermisosPorCargoAsync(cargoId));
         }
 
         [HttpPost]

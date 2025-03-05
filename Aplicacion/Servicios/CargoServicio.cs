@@ -1,52 +1,59 @@
 ﻿using Aplicacion.DTOs;
 using Aplicacion.Interfaces;
-using Dominio.Entidades;
+
 namespace Aplicacion.Servicios
 {
     public class CargoServicio : ICargoServicio
     {
-        private readonly ICargoRepositorio _repositorio;
+        private readonly ICargoRepositorio _cargoRepositorio;
 
-        public CargoServicio(ICargoRepositorio repositorio)
+        public CargoServicio(ICargoRepositorio cargoRepositorio)
         {
-            _repositorio = repositorio;
+            _cargoRepositorio = cargoRepositorio;
         }
 
         public async Task<IEnumerable<CargoDTO>> ObtenerTodosAsync()
         {
-            var cargos = await _repositorio.ObtenerTodosAsync();
-            return cargos.Select(c => new CargoDTO { CargoId = c.CargoId, Nombre = c.Nombre, Descripcion = c.Descripcion, Activo = c.Activo });
+            return await _cargoRepositorio.ObtenerTodosAsync();
         }
 
         public async Task<CargoDTO> ObtenerPorIdAsync(int id)
         {
-            var cargo = await _repositorio.ObtenerPorIdAsync(id);
-            return cargo == null ? null : new CargoDTO { CargoId = cargo.CargoId, Nombre = cargo.Nombre, Descripcion = cargo.Descripcion, Activo = cargo.Activo };
+            var cargo = await _cargoRepositorio.ObtenerPorIdAsync(id);
+            if (cargo == null)
+                throw new KeyNotFoundException($"El cargo con ID {id} no fue encontrado.");
+
+            return cargo;
         }
 
         public async Task AgregarAsync(CargoDTO dto)
         {
-            var cargo = new Cargo
-            {
-                Nombre = dto.Nombre,
-                Descripcion = dto.Descripcion,
-                CreadoPor = "admin", // 🔹 Definir el usuario que crea el cargo
-                Activo = true
-            };
+            if (string.IsNullOrEmpty(dto.Nombre))
+                throw new ArgumentException("El nombre del cargo es obligatorio.");
 
-            await _repositorio.AgregarAsync(cargo);
+            if (string.IsNullOrEmpty(dto.Descripcion))
+                throw new ArgumentException("La descripción del cargo es obligatoria.");
+            dto.CreadoPor = "admin"; // Luego se cambiará por el usuario logueado
+
+            await _cargoRepositorio.AgregarAsync(dto);
         }
-
 
         public async Task ModificarAsync(CargoDTO dto)
         {
-            var cargo = new Cargo { CargoId = (int)dto.CargoId, Nombre = dto.Nombre, Descripcion = dto.Descripcion, Activo = dto.Activo };
-            await _repositorio.ModificarAsync(cargo);
+            var cargoExistente = await _cargoRepositorio.ObtenerPorIdAsync(dto.CargoId);
+            if (cargoExistente == null)
+                throw new KeyNotFoundException($"El cargo con ID {dto.CargoId} no fue encontrado.");
+
+            await _cargoRepositorio.ModificarAsync(dto);
         }
 
         public async Task DesactivarAsync(int id)
         {
-            await _repositorio.DesactivarAsync(id);
+            var cargoExistente = await _cargoRepositorio.ObtenerPorIdAsync(id);
+            if (cargoExistente == null)
+                throw new KeyNotFoundException($"El cargo con ID {id} no fue encontrado.");
+
+            await _cargoRepositorio.DesactivarAsync(id);
         }
     }
 }
